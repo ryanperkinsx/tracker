@@ -7,7 +7,7 @@ logger = logging.getLogger(name=__name__)
 
 
 if __name__ == "__main__":
-    with sl.connect(f"/Users/ryanperkins/Desktop/miles/db/miles_database") as con:
+    with sl.connect(f"/Users/ryanperkins/IdeaProjects/tracker/db/tracker_database") as con:
         cur = con.cursor()
         app = App(con=con, cur=cur)
         app.__exec__()

@@ -118,7 +118,7 @@ class Menu:
                 self.printer.print_training_blocks()
                 # end if "ls"
 
-            elif cmd == 'e' or cmd == "edit":
+            elif cmd == 'o' or cmd == "open":
                 training_block_name = input("name: ").strip()
                 x = 0
                 while x < 4 and not self.tb.validate_name(name=training_block_name):
@@ -135,7 +135,7 @@ class Menu:
                     self.edit_menu(name=training_block_name)
                     self.printer.print_training_block_menu()
                 # end else
-            # end if 'e'
+            # end if 'o'
 
             elif cmd == 'a' or cmd == "add":
                 training_block_name = input("name (64 char. limit): ").strip()
@@ -275,7 +275,7 @@ class Menu:
         :param name: name
         :return: none
         """
-        self.printer.print_training_block_edit_menu()
+        self.printer.print_training_block_open_menu()
         training_block = self.tb.get_training_block_by_name(name=name)
         training_block_id = training_block[0]
         weeks = self.week.get_weeks_by_training_block_id(training_block_id=training_block_id)
@@ -485,7 +485,7 @@ class Menu:
             # end elif 'r'
 
             elif cmd == 'h' or cmd == "help":
-                self.printer.print_training_block_edit_menu()
+                self.printer.print_training_block_open_menu()
             # end elif 'h'
 
             elif cmd == 'm' or cmd == "menu":

@@ -113,8 +113,14 @@ class Menu:
                 self.printer.print_races()
             # end if "ls"
 
-            elif cmd == 'e' or cmd == "edit":
+            elif cmd == 'o' or cmd == "open":
                 race_name = input("name: ").strip()
+                x = 0
+                while x < 4 and not self.race.validate_name(name=race_name):
+                    race_name = input("invalid name! try again: ").strip()
+                    x += 1
+                # end while
+
                 if not self.race.validate_name(name=race_name):
                     print("please select an existing name!")
                     print()
@@ -124,7 +130,7 @@ class Menu:
                     self.edit_menu(name=race_name)
                     self.printer.print_race_menu()
                 # end else
-            # end if 'e'
+            # end if 'o'
 
             elif cmd == 'a' or cmd == "add":
                 self.add_race_wizard()
@@ -292,7 +298,7 @@ class Menu:
 
     def edit_menu(self, name: str = None):
         """
-        edit_race_menu() is responsible for interactions with a specific race
+        edit_menu() is responsible for interactions with a specific race
 
         :param name: name of the race to interact with
         :return: none
@@ -307,131 +313,143 @@ class Menu:
             params.remove(cmd)
 
             if cmd == 'p' or cmd == "print":
+                race = self.race.get_race_by_name(name=name)
                 self.printer.print_race(race=race)
             # end if 'p'
 
             elif cmd == 'e' or cmd == "edit":
-                if len(params) == 1:
-                    if params[0] == "date":
-                        day_id = self.race.get_day_id_by_name(name=name)
-                        day = self.day.get_day_by_id(day_id=day_id)
-                        date = day[1]
-                        training_block_id = day[4]  # for later...
-                        print(f"current: {date}")
-                        input_date = input("new date (YYYY-MM-DD):").strip()
-                        x = 0
-                        while x < 4 and not self.is_date(date=input_date):
-                            print("invalid date!")
-                            input_date = input("new date (YYYY-MM-DD):").strip()
-                            x += 1
-                        # end while
+                field = input("field (date, name, miles, url): ").strip().lower()
+                x = 0
+                while x < 4 and not (field == "date" or field == "name" or field == "miles" or field == "url"):
+                    field = input("invalid field! try again: ").strip().lower()
+                    x += 1
+                # end while
 
-                        if not self.is_date(date=input_date):
-                            print("invalid date!")
-                            continue
-                        # end if
-                        date = datetime.strptime(input_date, date_format)
+                if not (field == "date" or field == "name" or field == "miles" or field == "url"):
+                    print("max tries exceeded!")
+                    print()
+                    continue
 
-                        if training_block_id is None:  # later
-                            day_id = self.day.add_day(date=date)
-                            if day_id is None:
-                                print("day could not be created!")
-                                continue
-                            # end if
-                        # end if
-                        else:
-                            day_id = self.day.get_day_by_training_block_id_and_date(
-                                date=date,
-                                training_block_id=training_block_id
-                            )
-                        # end else
+                if field == "date":
+                    day_id = self.race.get_day_id_by_name(name=name)
+                    day = self.day.get_day_by_id(day_id=day_id)
+                    date = day[1]
+                    training_block_id = day[4]  # for later...
+                    print(f"current: {date}")
+                    input_date = input("new date (YYYY-MM-DD): ").strip()
+                    x = 0
+                    while x < 4 and not self.is_date(date=input_date):
+                        input_date = input("invalid date! try again: ").strip()
+                        x += 1
+                    # end while
 
-                        if day_id is None:
-                            print("day not found in the training block!")
-                            continue
-                        # end if
-
-                        self.race.update_day_id_by_id(
-                            race_id=race_id,
-                            day_id=day_id
-                        )
-                        print(f"{name} date updated to {date}!")
+                    if not self.is_date(date=input_date):
+                        print("invalid date!")
                         print()
+                        continue
+                    # end if
+                    date = datetime.strptime(input_date, date_format)
+
+                    if training_block_id is None:  # later
+                        day_id = self.day.add_day(date=date)
+                        if day_id is None:
+                            print("day could not be created!")
+                            print()
+                            continue
+                        # end if
+                    # end if
+                    else:
+                        day = self.day.get_day_by_training_block_id_and_date(
+                            date=date,
+                            training_block_id=training_block_id
+                        )
+                        day_id = day[0]
+                    # end else
+
+                    if day_id is None:
+                        print("day not found in the training block!")
+                        print()
+                        continue
+                    # end if
+
+                    self.race.update_day_id_by_id(
+                        race_id=race_id,
+                        day_id=day_id
+                    )
+                    print(f"{name} date updated to {date.strftime(date_format)}!")
+                    print()
+                    continue
                     # end if "date"
 
-                    elif params[0] == "name":
-                        print(f"current name: {name}")
-                        input_name = input("new name (64 char. limit): ").strip()
-                        x = 0
-                        while x < 4 and self.race.validate_name(name=input_name):
-                            input_name = input("name taken! try again: ").strip()
-                            x += 1
-                        # end while
+                elif field == "name":
+                    print(f"current name: {name}")
+                    input_name = input("new name (64 char. limit): ").strip()
+                    x = 0
+                    while x < 4 and self.race.validate_name(name=input_name):
+                        input_name = input("name taken! try again: ").strip()
+                        x += 1
+                    # end while
 
-                        if self.race.validate_name(name=input_name):
-                            print("a valid name was not provided!")
-                            continue
-                        # end if
-                        self.race.update_name_by_id(race_id=race_id, name=input_name)
-                        print(f"\"{name}\" was updated to \"{input_name}\"!")
-                        print()
+                    if self.race.validate_name(name=input_name):
+                        print("a valid name was not provided!")
+                        break
+                    # end if
+                    self.race.update_name_by_id(race_id=race_id, name=input_name)
+                    print(f"\"{name}\" was updated to \"{input_name}\"!")
+                    print()
+                    continue
                     # end elif "name"
 
-                    elif params[0] == "miles":
-                        miles = self.race.get_miles_by_name(name=name)
-                        print(f"current: {miles}")
-                        input_miles = input("new miles: ").strip()
-                        x = 0
-                        while x < 4 and not input_miles.isdigit():
-                            print("invalid character!")
-                            input_miles = input("new miles: ").strip()
-                            x += 1
-                        # end while
+                elif field == "miles":
+                    miles = self.race.get_miles_by_name(name=name)
+                    print(f"current: {miles}")
+                    input_miles = input("new miles: ").strip()
+                    x = 0
+                    while x < 4 and not input_miles.isdigit():
+                        input_miles = input("invalid character! try again: ").strip()
+                        x += 1
+                    # end while
 
-                        if not input_miles.isdigit():
-                            print("please provide a #!")
-                            print()
-                            continue
-                        # end if
-
-                        miles = int(input_miles)
-                        if miles < 0:
-                            print("miles must be > 0!")
-                            print()
-                            continue
-                        # end if
-
-                        self.race.update_miles_by_id(race_id=race_id, miles=miles)
-                        print(f"{name} miles were updated to {miles}!")
+                    if not input_miles.isdigit():
+                        print("please provide a #!")
                         print()
+                        continue
+                    # end if
+
+                    miles = int(input_miles)
+                    if miles < 0:
+                        print("miles must be > 0!")
+                        print()
+                        continue
+                    # end if
+
+                    self.race.update_miles_by_id(race_id=race_id, miles=miles)
+                    print(f"{name} was updated to {miles} miles!")
+                    print()
                     # end elif "miles"
 
-                    elif params[0] == "url":
-                        url = self.race.get_url_by_name(name=name)
-                        print(f"current: {url}")
-                        input_url = input("new: ").strip()
-                        x = 0
-                        while x < 4 and not self.is_url(url=input_url):
-                            print("invalid URL!")
-                            input_url = input("new: ").strip()
-                            x += 1
-                        # end while
+                elif field == "url":
+                    url = self.race.get_url_by_name(name=name)
+                    print(f"current: {url}")
+                    input_url = input("new: ").strip()
+                    x = 0
+                    while x < 4 and not self.is_url(url=input_url):
+                        print("invalid URL!")
+                        input_url = input("invalid URL! try again: ").strip()
+                        x += 1
+                    # end while
 
-                        if not self.is_url(url=input_url):
-                            print("invalid URL!")
-                            print()
-                            continue
-                        # end if
-
-                        self.race.update_url_by_id(race_id=race_id, url=input_url)
-                        print(f"{name} URL was updated to {input_url}!")
+                    if not self.is_url(url=input_url):
+                        print("invalid URL!")
                         print()
-                    # end elif "url"
-                # end if
-                else:
-                    print("please provide a field to update! (date, name, miles, url)")
+                        continue
+                    # end if
+
+                    self.race.update_url_by_id(race_id=race_id, url=input_url)
+                    print(f"{name} URL was updated to {input_url}!")
                     print()
-                # end else
+                    continue
+                # end elif "url"
             # end elif 'e'
 
             elif cmd == 'd' or cmd == "delete":
@@ -469,7 +487,7 @@ class Menu:
                 sys.exit("bye :)")
             # end elif 'x'
         # end while
-        # end edit_race_menu()
+        # end edit_menu()
 
     # end Menu
 

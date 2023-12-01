@@ -105,7 +105,7 @@ class RaceClient:
         return res.fetchone()[0]
         # end get_day_id_by_name()
 
-    def get_miles_by_name(self, name: str = None):
+    def get_miles_by_name(self, name: str = None) -> int:
         """
         get_miles_by_name() retrieves the # of miles given a race's name
 
@@ -113,7 +113,7 @@ class RaceClient:
         """
         res = self.cur.execute("SELECT miles FROM race WHERE name = ?", (name,))
         self.con.commit()
-        return res.fetchone()[0]
+        return int(res.fetchone()[0])
         # end get_miles_by_name()
 
     def get_url_by_name(self, name: str = None):

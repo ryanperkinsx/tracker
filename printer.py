@@ -91,7 +91,7 @@ class Printer:
         print("         cmds:")
         print("----------------------")
         print("(ls)   list: list all the training blocks")
-        print("(e)    edit: edit a training block")
+        print("(o)    open: open a training block")
         print("(a)     add: add a new training block")
         print("(rm) remove: remove an existing training block")
         print("(h)    help: print the menu")
@@ -101,9 +101,9 @@ class Printer:
         # end print_training_block_menu()
 
     @staticmethod
-    def print_training_block_edit_menu():
+    def print_training_block_open_menu():
         """
-        print_training_block_edit_menu() prints the menu options for the training block table
+        print_training_block_open_menu() prints the menu options for the training block table
 
         :return: none
         """
@@ -120,7 +120,7 @@ class Printer:
         print("(m)    menu: returns to the main menu")
         print("(x)    exit: exits the process")
         print()
-        # end print_training_block_edit_menu()
+        # end print_training_block_open_menu()
 
     @staticmethod
     def print_race_menu():
@@ -133,7 +133,7 @@ class Printer:
         print("         cmds:")
         print("----------------------")
         print("(ls)   list: list all the races")
-        print("(e)    edit: edit a race")
+        print("(o)    open: open a race")
         print("(a)     add: add a new race")
         print("(rm) remove: remove an existing race")
         print("(h)    help: print the menu")
@@ -153,7 +153,7 @@ class Printer:
         print("         cmds:")
         print("----------------------")
         print("(p)   print: re-print the race details")
-        print("(e)    edit: edit the race ex. d <date, name, miles, url>")
+        print("(e)    edit: edit the race")
         print("(d)  delete: delete the race")
         print("(h)    help: print the menu")
         print("(m)    menu: returns to the race menu")
@@ -194,9 +194,11 @@ class Printer:
         # end if
 
         print("--------------------------------------------")
-        date = race[3]
-        name = race[2]
-        miles = race[4]
+        day_id = race[1]
+        day = self.day.get_day_by_id(day_id=day_id)
+        date = day[1]
+        name = race[3]
+        miles = race[2]
         url = race[5] if len(race[5]) > 0 else "none"
         print(f" {date} |  {name},  {miles},  {url}")
         print("--------------------------------------------")
@@ -226,7 +228,7 @@ class Printer:
         print("--------------------------------------------")
         for race in races:
             day_id = race[1]
-            miles = race[2]
+            miles = int(race[2])
             name = race[3]
             url = race[5] if len(race[5]) > 0 else "none"
             day = self.day.get_day_by_id(day_id=day_id)
@@ -358,7 +360,7 @@ class Printer:
 
         week = self.week.get_week_by_id(week_id=week_id)
         if week is not None:
-            week_number = week[2]
+            week_number = week[3]
         else:
             print("week_id was not found!")
             print()
